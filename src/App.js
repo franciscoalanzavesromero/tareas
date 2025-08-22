@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ExcelUploader from "./ExcelUploader";
 import TaskTable from "./TaskTable";
 import { saveTasks, loadTasks } from "./storage";
 
@@ -20,10 +19,6 @@ function App() {
   return (
     <div className="container mt-4">
       <h1 className="mb-4">Gestión de Tareas</h1>
-
-      {/* Subida de Excel */}
-      <ExcelUploader onData={setTasks} />
-
       {/* Tabla de tareas */}
       <TaskTable tasks={tasks} setTasks={setTasks} />
     </div>
