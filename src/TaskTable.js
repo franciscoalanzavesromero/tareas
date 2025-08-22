@@ -32,15 +32,16 @@ const TaskTable = ({ tasks, setTasks }) => {
   // Añadir tarea
   const addTask = () => {
     if (!newTask.DRS || !newTask.Descripcion) return;
-    setTasks([...tasks, newTask]);
+    setTasks([...tasks, { ...newTask }]); // copia independiente
     setNewTask(columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {}));
     setShowAddModal(false);
   };
 
   // Guardar tarea editada
   const saveEditTask = () => {
-    const updatedTasks = [...tasks];
-    updatedTasks[editTaskIndex] = editTaskData;
+    const updatedTasks = tasks.map((t, index) =>
+      index === editTaskIndex ? { ...editTaskData } : t
+    );
     setTasks(updatedTasks);
     setEditTaskIndex(null);
   };
@@ -152,7 +153,7 @@ const TaskTable = ({ tasks, setTasks }) => {
                     className="btn btn-warning btn-sm"
                     onClick={() => {
                       setEditTaskIndex((currentPage - 1) * itemsPerPage + i);
-                      setEditTaskData(task);
+                      setEditTaskData({ ...task }); // copia independiente
                     }}
                     title="Editar tarea"
                   >
