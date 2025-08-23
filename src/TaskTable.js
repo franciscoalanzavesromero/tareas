@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 import * as XLSX from "xlsx";
 import { v4 as uuidv4 } from "uuid";
+import ConfirmDeleteAllModal from "./components/ConfirmDeleteAllModal";
+import EditTaskModal from "./components/EditTaskModal";
+import AddTaskModal from "./components/AddTaskModal";
+import Pagination from "./components/Pagination";
 
 const TaskTable = ({ tasks, setTasks }) => {
   const columns = [
@@ -117,9 +122,7 @@ const TaskTable = ({ tasks, setTasks }) => {
           Exportar a Excel
         </button>
         <label className="btn btn-info mb-0">
-          Importar Excel
-          <input
-            type="file"
+          Importar Excel <input type="file"
             accept=".xlsx, .xls"
             hidden
             onChange={(e) => handleImportExcel(e.target.files[0])}
@@ -196,221 +199,60 @@ const TaskTable = ({ tasks, setTasks }) => {
       </table>
 
       {/* Paginación */}
-      <nav>
-        <ul className="pagination justify-content-center">
-          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => handlePageChange(currentPage - 1)}
-            >
-              Anterior
-            </button>
-          </li>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
 
-          {/* Siempre mostrar primera página */}
-          {currentPage > 3 && (
-            <>
-              <li className="page-item">
-                <button
-                  className="page-link"
-                  onClick={() => handlePageChange(1)}
-                >
-                  1
-                </button>
-              </li>
-              <li className="page-item disabled">
-                <span className="page-link">...</span>
-              </li>
-            </>
-          )}
-
-          {/* Rango alrededor de la página actual */}
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(
-              (page) => page >= currentPage - 2 && page <= currentPage + 2
-            )
-            .map((page) => (
-              <li
-                key={page}
-                className={`page-item ${currentPage === page ? "active" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => handlePageChange(page)}
-                >
-                  {page}
-                </button>
-              </li>
-            ))}
-
-          {/* Siempre mostrar última página */}
-          {currentPage < totalPages - 2 && (
-            <>
-              <li className="page-item disabled">
-                <span className="page-link">...</span>
-              </li>
-              <li className="page-item">
-                <button
-                  className="page-link"
-                  onClick={() => handlePageChange(totalPages)}
-                >
-                  {totalPages}
-                </button>
-              </li>
-            </>
-          )}
-
-          <li
-            className={`page-item ${
-              currentPage === totalPages ? "disabled" : ""
-            }`}
-          >
-            <button
-              className="page-link"
-              onClick={() => handlePageChange(currentPage + 1)}
-            >
-              Siguiente
-            </button>
-          </li>
-        </ul>
-      </nav>
-
-      {/* Modal añadir */}
-      {showAddModal && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Añadir nueva tarea</h5>
-                <button
-                  className="btn-close"
-                  onClick={() => setShowAddModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                {columns.map((col) => (
-                  <div className="mb-3" key={col}>
-                    <label className="form-label">{col}</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={newTask[col]}
-                      onChange={(e) =>
-                        setNewTask({ ...newTask, [col]: e.target.value })
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowAddModal(false)}
-                >
-                  Cancelar
-                </button>
-                <button className="btn btn-success" onClick={addTask}>
-                  Añadir tarea
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal editar */}
-      {editTaskId && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Editar tarea</h5>
-                <button
-                  className="btn-close"
-                  onClick={() => {
-                    setEditTaskId(null);
-                    setEditTaskData({});
-                  }}
-                ></button>
-              </div>
-              <div className="modal-body">
-                {columns.map((col) => (
-                  <div className="mb-3" key={col}>
-                    <label className="form-label">{col}</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editTaskData[col] || ""}
-                      onChange={(e) =>
-                        setEditTaskData({
-                          ...editTaskData,
-                          [col]: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setEditTaskId(null);
-                    setEditTaskData({});
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button className="btn btn-success" onClick={saveEditTask}>
-                  Guardar cambios
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal añadir tarea */}
+      <AddTaskModal
+        show={showAddModal}
+        columns={columns}
+        taskData={newTask}
+        onChange={(col, value) => setNewTask({ ...newTask, [col]: value })}
+        onCancel={() => setShowAddModal(false)}
+        onAdd={addTask}
+      />
+      {/* Modal editar tarea */}
+      <EditTaskModal
+        show={!!editTaskId}
+        columns={columns}
+        taskData={editTaskData}
+        onChange={(col, value) =>
+          setEditTaskData({ ...editTaskData, [col]: value })
+        }
+        onCancel={() => {
+          setEditTaskId(null);
+          setEditTaskData({});
+        }}
+        onSave={saveEditTask}
+      />
 
       {/* Modal borrar todas */}
-      {showConfirmModal && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirmar borrado</h5>
-                <button
-                  className="btn-close"
-                  onClick={() => setShowConfirmModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>¿Estás seguro de que quieres borrar todas las tareas?</p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowConfirmModal(false)}
-                >
-                  Cancelar
-                </button>
-                <button className="btn btn-danger" onClick={clearAllTasks}>
-                  Sí, borrar todo
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteAllModal
+        show={showConfirmModal}
+        onConfirm={clearAllTasks}
+        onCancel={() => setShowConfirmModal(false)}
+      />
     </div>
   );
+};
+
+TaskTable.propTypes = {
+  tasks: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    DRS: PropTypes.string,
+    Descripcion: PropTypes.string,
+    'Casos de prueba': PropTypes.string,
+    Link: PropTypes.string,
+    Detalles: PropTypes.string,
+    Precondiciones: PropTypes.string,
+    Estado: PropTypes.string,
+    Defecto: PropTypes.string,
+    Comentarios: PropTypes.string
+  })).isRequired,
+  setTasks: PropTypes.func.isRequired
 };
 
 export default TaskTable;
