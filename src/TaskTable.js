@@ -6,6 +6,8 @@ import ConfirmDeleteAllModal from "./components/ConfirmDeleteAllModal";
 import EditTaskModal from "./components/EditTaskModal";
 import AddTaskModal from "./components/AddTaskModal";
 import Pagination from "./components/Pagination";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TaskTable = ({ tasks, setTasks }) => {
   const columns = [
@@ -35,10 +37,16 @@ const TaskTable = ({ tasks, setTasks }) => {
   // Añadir nueva tarea
   const addTask = () => {
     if (!newTask.DRS || !newTask.Descripcion) return;
+
     const taskToAdd = { ...newTask, id: uuidv4() };
     setTasks([...tasks, taskToAdd]);
+
+    // Resetear formulario
     setNewTask(columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {}));
     setShowAddModal(false);
+
+    // Mostrar toast de éxito
+    toast.success("La tarea se ha guardado correctamente");
   };
 
   // Guardar edición
@@ -50,6 +58,9 @@ const TaskTable = ({ tasks, setTasks }) => {
     );
     setEditTaskId(null);
     setEditTaskData({});
+
+  // Mostrar toast de éxito al guardar cambios
+   toast.success("La tarea se ha modificado correctamente");
   };
 
   // Eliminar tarea individual
@@ -216,6 +227,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         onCancel={() => setShowAddModal(false)}
         onAdd={addTask}
       />
+
       {/* Modal editar tarea */}
       <EditTaskModal
         show={!!editTaskId}
@@ -237,6 +249,9 @@ const TaskTable = ({ tasks, setTasks }) => {
         onConfirm={clearAllTasks}
         onCancel={() => setShowConfirmModal(false)}
       />
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
