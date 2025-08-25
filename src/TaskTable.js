@@ -46,7 +46,7 @@ const TaskTable = ({ tasks, setTasks }) => {
     setShowAddModal(false);
 
     // Mostrar toast de éxito
-    toast.success("La tarea se ha guardado correctamente");
+    toast.success(`La tarea se ha guardado correctamente`);
   };
 
   // Guardar edición
@@ -59,12 +59,19 @@ const TaskTable = ({ tasks, setTasks }) => {
     setEditTaskId(null);
     setEditTaskData({});
 
-  // Mostrar toast de éxito al guardar cambios
-   toast.success("La tarea se ha modificado correctamente");
+    // Mostrar toast de éxito al guardar cambios
+    toast.success(`La tarea se ha modificado correctamente`);
   };
 
   // Eliminar tarea individual
-  const removeTask = (id) => setTasks(tasks.filter((t) => t.id !== id));
+  const removeTask = (id) => {
+    const taskToRemove = tasks.find((t) => t.id === id);
+    setTasks(tasks.filter((t) => t.id !== id));
+    if (taskToRemove) {
+      // Mostrar toast de éxito al eliminar tarea individual
+      toast.warn(`Se ha eliminado la tarea`);
+    }
+  };
 
   // Exportar a Excel
   const exportToExcel = () => {
