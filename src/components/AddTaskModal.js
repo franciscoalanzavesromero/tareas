@@ -1,10 +1,21 @@
-import React from "react";
+import PropTypes from "prop-types";
 
-const AddTaskModal = ({ show, columns, taskData, onChange, onCancel, onAdd }) => {
+const AddTaskModal = ({
+  show,
+  columns,
+  taskData,
+  onChange,
+  onCancel,
+  onAdd,
+}) => {
   if (!show) return null;
 
   return (
-    <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+    <dialog
+      className="modal show d-block"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      open
+    >
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
@@ -14,13 +25,26 @@ const AddTaskModal = ({ show, columns, taskData, onChange, onCancel, onAdd }) =>
           <div className="modal-body">
             {columns.map((col) => (
               <div className="mb-3" key={col}>
-                <label className="form-label">{col}</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={taskData[col] || ""}
-                  onChange={(e) => onChange(col, e.target.value)}
-                />
+                <label className="form-label" htmlFor={col}>
+                  {col}
+                </label>
+                {["Detalles", "Comentarios", "Precondiciones"].includes(col) ? (
+                  <textarea
+                    id={col}
+                    className="form-control"
+                    rows={3}
+                    value={taskData[col] || ""}
+                    onChange={(e) => onChange(col, e.target.value)}
+                  />
+                ) : (
+                  <input
+                    id={col}
+                    type={col === "Link" ? "url" : "text"}
+                    className="form-control"
+                    value={taskData[col] || ""}
+                    onChange={(e) => onChange(col, e.target.value)}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -34,8 +58,17 @@ const AddTaskModal = ({ show, columns, taskData, onChange, onCancel, onAdd }) =>
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
+};
+
+AddTaskModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  taskData: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onAdd: PropTypes.func.isRequired,
 };
 
 export default AddTaskModal;

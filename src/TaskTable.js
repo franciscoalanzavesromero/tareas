@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as XLSX from "xlsx";
 import { v4 as uuidv4 } from "uuid";
 import ConfirmDeleteAllModal from "./components/ConfirmDeleteAllModal";
@@ -122,7 +122,9 @@ const TaskTable = ({ tasks, setTasks }) => {
           Exportar a Excel
         </button>
         <label className="btn btn-info mb-0">
-          Importar Excel <input type="file"
+          Importar Excel{" "}
+          <input
+            type="file"
             accept=".xlsx, .xls"
             hidden
             onChange={(e) => handleImportExcel(e.target.files[0])}
@@ -240,19 +242,21 @@ const TaskTable = ({ tasks, setTasks }) => {
 };
 
 TaskTable.propTypes = {
-  tasks: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    DRS: PropTypes.string,
-    Descripcion: PropTypes.string,
-    'Casos de prueba': PropTypes.string,
-    Link: PropTypes.string,
-    Detalles: PropTypes.string,
-    Precondiciones: PropTypes.string,
-    Estado: PropTypes.string,
-    Defecto: PropTypes.string,
-    Comentarios: PropTypes.string
-  })).isRequired,
-  setTasks: PropTypes.func.isRequired
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      DRS: PropTypes.string,
+      Descripcion: PropTypes.string,
+      "Casos de prueba": PropTypes.string,
+      Link: PropTypes.string,
+      Detalles: PropTypes.string,
+      Precondiciones: PropTypes.string,
+      Estado: PropTypes.string,
+      Defecto: PropTypes.string,
+      Comentarios: PropTypes.string,
+    })
+  ).isRequired,
+  setTasks: PropTypes.func.isRequired,
 };
 
 export default TaskTable;
