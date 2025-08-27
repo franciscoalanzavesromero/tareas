@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import WysiwygEditor from "./WysiwygEditor";
 
 const EditTaskModal = ({
   show,
@@ -18,23 +19,19 @@ const EditTaskModal = ({
     >
       <div
         className="modal-dialog modal-fullscreen"
-        style={{
-          margin: 0,
-          maxWidth: "100%",
-          width: "100%",
-        }}
+        style={{ margin: 0, maxWidth: "100%", width: "100%" }}
       >
         <div
           className="modal-content"
-          style={{
-            maxWidth: "100%",
-            width: "100%",
-            overflowX: "hidden", // 👈 elimina scroll horizontal
-          }}
+          style={{ maxWidth: "100%", width: "100%", overflowX: "hidden" }}
         >
           <div className="modal-header">
             <h5 className="modal-title">Editar tarea</h5>
-            <button className="btn-close" onClick={onCancel}></button>
+            <button
+              className="btn-close"
+              onClick={onCancel}
+              aria-label="Cerrar"
+            ></button>
           </div>
 
           <div
@@ -42,30 +39,34 @@ const EditTaskModal = ({
             style={{
               maxHeight: "80vh",
               overflowY: "auto",
-              overflowX: "hidden", // 👈 clave para que nada sobresalga
+              overflowX: "hidden",
             }}
           >
-            {columns.map((col) => (
-              <div className="mb-3" key={col} style={{ width: "100%" }}>
-                <label className="form-label" htmlFor={`edit-${col}`}>
+            {columns.map((col, index) => (
+              <div
+                key={col + index}
+                style={{ width: "100%", marginBottom: "1rem" }}
+              >
+                <label
+                  className="form-label"
+                  htmlFor={`edit-${col}`}
+                  style={{ display: "block", marginBottom: "0.25rem" }}
+                >
                   {col}
                 </label>
-                {["Detalles", "Comentarios", "Precondiciones"].includes(col) ? (
-                  <textarea
-                    id={`edit-${col}`}
-                    className="form-control"
-                    rows={3}
-                    style={{ width: "100%", maxWidth: "100%" }}
-                    value={taskData[col] || ""}
-                    onChange={(e) => onChange(col, e.target.value)}
+
+                {col === "Comentarios" ? (
+                  <WysiwygEditor
+                    value={taskData[col]}
+                    onChange={(val) => onChange(col, val)}
                   />
                 ) : (
                   <input
                     id={`edit-${col}`}
                     type={col === "Link" ? "url" : "text"}
                     className="form-control"
-                    style={{ width: "100%", maxWidth: "100%" }}
-                    value={taskData[col] || ""}
+                    style={{ width: "100%" }}
+                    value={taskData[col] ?? ""}
                     onChange={(e) => onChange(col, e.target.value)}
                   />
                 )}

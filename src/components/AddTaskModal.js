@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import WysiwygEditor from "./WysiwygEditor";
 
 const AddTaskModal = ({
   show,
@@ -16,38 +17,71 @@ const AddTaskModal = ({
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
       open
     >
-      <div className="modal-dialog modal-lg">
-        <div className="modal-content">
+      <div
+        className="modal-dialog modal-fullscreen"
+        style={{ margin: 0, maxWidth: "100%", width: "100%" }}
+      >
+        <div
+          className="modal-content"
+          style={{ maxWidth: "100%", width: "100%", overflowX: "hidden" }}
+        >
           <div className="modal-header">
             <h5 className="modal-title">Añadir nueva tarea</h5>
-            <button className="btn-close" onClick={onCancel}></button>
+            <button
+              className="btn-close"
+              onClick={onCancel}
+              aria-label="Cerrar"
+            ></button>
           </div>
-          <div className="modal-body">
-            {columns.map((col) => (
-              <div className="mb-3" key={col}>
-                <label className="form-label" htmlFor={col}>
+
+          <div
+            className="modal-body"
+            style={{
+              maxHeight: "80vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
+            {columns.map((col, index) => (
+              <div
+                key={col + index}
+                style={{ width: "100%", marginBottom: "1rem" }}
+              >
+                <label
+                  className="form-label"
+                  htmlFor={`add-${col}`}
+                  style={{ display: "block", marginBottom: "0.25rem" }}
+                >
                   {col}
                 </label>
-                {["Detalles", "Comentarios", "Precondiciones"].includes(col) ? (
+
+                {col === "Comentarios" ? (
+                  <WysiwygEditor
+                    value={taskData[col]}
+                    onChange={(val) => onChange(col, val)}
+                  />
+                ) : ["Detalles", "Precondiciones"].includes(col) ? (
                   <textarea
-                    id={col}
+                    id={`add-${col}`}
                     className="form-control"
                     rows={3}
-                    value={taskData[col] || ""}
+                    value={taskData[col] ?? ""}
                     onChange={(e) => onChange(col, e.target.value)}
                   />
                 ) : (
                   <input
-                    id={col}
+                    id={`add-${col}`}
                     type={col === "Link" ? "url" : "text"}
                     className="form-control"
-                    value={taskData[col] || ""}
+                    style={{ width: "100%" }}
+                    value={taskData[col] ?? ""}
                     onChange={(e) => onChange(col, e.target.value)}
                   />
                 )}
               </div>
             ))}
           </div>
+
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={onCancel}>
               Cancelar

@@ -180,42 +180,48 @@ const TaskTable = ({ tasks, setTasks }) => {
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {paginatedTasks.map((task) => (
-            <tr key={task.id}>
-              {columns.map((col) => (
-                <td key={col}>
-                  {col === "Link" && task[col] ? (
-                    <a href={task[col]} target="_blank" rel="noreferrer">
-                      Ver
-                    </a>
-                  ) : (
-                    task[col]
-                  )}
-                </td>
-              ))}
-              <td>
-                <div className="d-flex gap-1">
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => {
-                      setEditTaskId(task.id);
-                      setEditTaskData({ ...task });
-                    }}
-                  >
-                    <i className="bi bi-pencil"></i>
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => removeTask(task.id)}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+<tbody>
+  {paginatedTasks.map((task) => (
+    <tr key={task.id}>
+      {columns.map((col) => (
+        <td key={col}>
+          {col === "Link" && task[col] ? (
+            <a href={task[col]} target="_blank" rel="noreferrer">
+              Ver
+            </a>
+          ) : col === "Comentarios" ? (
+            <div
+              style={{ whiteSpace: "pre-wrap" }}
+              dangerouslySetInnerHTML={{ __html: task[col] }}
+            />
+          ) : (
+            task[col]
+          )}
+        </td>
+      ))}
+      <td>
+        <div className="d-flex gap-1">
+          <button
+            className="btn btn-warning btn-sm"
+            onClick={() => {
+              setEditTaskId(task.id);
+              setEditTaskData({ ...task });
+            }}
+          >
+            <i className="bi bi-pencil"></i>
+          </button>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => removeTask(task.id)}
+          >
+            <i className="bi bi-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
 
       {/* Paginación */}
