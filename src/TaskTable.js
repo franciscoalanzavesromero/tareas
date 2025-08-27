@@ -31,21 +31,15 @@ const TaskTable = ({ tasks, setTasks }) => {
   const [newTask, setNewTask] = useState(
     columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {})
   );
-
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Añadir nueva tarea
   const addTask = () => {
     if (!newTask.DRS || !newTask.Descripcion) return;
-
     const taskToAdd = { ...newTask, id: uuidv4() };
     setTasks([...tasks, taskToAdd]);
-
-    // Resetear formulario
     setNewTask(columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {}));
     setShowAddModal(false);
-
-    // Mostrar toast de éxito
     toast.success(`La tarea se ha guardado correctamente`);
   };
 
@@ -58,8 +52,6 @@ const TaskTable = ({ tasks, setTasks }) => {
     );
     setEditTaskId(null);
     setEditTaskData({});
-
-    // Mostrar toast de éxito al guardar cambios
     toast.success(`La tarea se ha modificado correctamente`);
   };
 
@@ -67,10 +59,7 @@ const TaskTable = ({ tasks, setTasks }) => {
   const removeTask = (id) => {
     const taskToRemove = tasks.find((t) => t.id === id);
     setTasks(tasks.filter((t) => t.id !== id));
-    if (taskToRemove) {
-      // Mostrar toast de éxito al eliminar tarea individual
-      toast.warn(`Se ha eliminado la tarea`);
-    }
+    if (taskToRemove) toast.warn(`Se ha eliminado la tarea`);
   };
 
   // Exportar a Excel
@@ -111,7 +100,7 @@ const TaskTable = ({ tasks, setTasks }) => {
     setCurrentPage(page);
   };
 
-  // Importar Excel (concatena tareas)
+  // Importar Excel
   const handleImportExcel = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -121,7 +110,7 @@ const TaskTable = ({ tasks, setTasks }) => {
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       const tasksWithId = jsonData.map((t) => ({ ...t, id: uuidv4() }));
-      setTasks((prev) => [...prev, ...tasksWithId]); // CONCATENA en lugar de reemplazar
+      setTasks((prev) => [...prev, ...tasksWithId]);
     };
     reader.readAsArrayBuffer(file);
   };
@@ -174,7 +163,14 @@ const TaskTable = ({ tasks, setTasks }) => {
       <table className="table table-striped table-bordered table-hover">
         <thead className="table-dark">
           <tr>
-            {columns.map((col) => (
+            {[
+              "DRS",
+              "Descripcion",
+              "Casos de prueba",
+              "Estado",
+              "Defecto",
+              "Link",
+            ].map((col) => (
               <th key={col}>{col}</th>
             ))}
             <th>Acciones</th>
@@ -182,49 +178,13 @@ const TaskTable = ({ tasks, setTasks }) => {
         </thead>
         <tbody>
           {paginatedTasks.map((task) => (
-            <tr key={task.id}>
-              {columns.map((col) => {
-                const renderCellContent = () => {
-                  if (col === "Link" && task[col]) {
-                    return (
-                      <a href={task[col]} target="_blank" rel="noreferrer">
-                        Ver
-                      </a>
-                    );
-                  }
-                  if (col === "Comentarios") {
-                    return (
-                      <div
-                        style={{ whiteSpace: "pre-wrap" }}
-                        dangerouslySetInnerHTML={{ __html: task[col] }}
-                      />
-                    );
-                  }
-                  return task[col];
-                };
-
-                return <td key={col}>{renderCellContent()}</td>;
-              })}
-              <td>
-                <div className="d-flex gap-1">
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => {
-                      setEditTaskId(task.id);
-                      setEditTaskData({ ...task });
-                    }}
-                  >
-                    <i className="bi bi-pencil"></i>
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => removeTask(task.id)}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
+            <TaskRow
+              key={task.id}
+              task={task}
+              setEditTaskId={setEditTaskId}
+              setEditTaskData={setEditTaskData}
+              removeTask={removeTask}
+            />
           ))}
         </tbody>
       </table>
@@ -236,7 +196,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         onPageChange={handlePageChange}
       />
 
-      {/* Modal añadir tarea */}
+      {/* Modales */}
       <AddTaskModal
         show={showAddModal}
         columns={columns}
@@ -246,7 +206,6 @@ const TaskTable = ({ tasks, setTasks }) => {
         onAdd={addTask}
       />
 
-      {/* Modal editar tarea */}
       <EditTaskModal
         show={!!editTaskId}
         columns={columns}
@@ -261,16 +220,119 @@ const TaskTable = ({ tasks, setTasks }) => {
         onSave={saveEditTask}
       />
 
-      {/* Modal borrar todas */}
       <ConfirmDeleteAllModal
         show={showConfirmModal}
         onConfirm={clearAllTasks}
         onCancel={() => setShowConfirmModal(false)}
       />
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
+  );
+};
+
+// Fila con acordeón
+const TaskRow = ({ task, setEditTaskId, setEditTaskData, removeTask }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const renderCellContent = (col) => {
+    if (col === "Link" && task[col]) {
+      return (
+        <a href={task[col]} target="_blank" rel="noreferrer">
+          Ver
+        </a>
+      );
+    }
+    return task[col];
+  };
+
+  return (
+    <React.Fragment>
+      <tr>
+        {[
+          "DRS",
+          "Descripcion",
+          "Casos de prueba",
+          "Estado",
+          "Defecto",
+          "Link",
+        ].map((col) => (
+          <td key={col}>{renderCellContent(col)}</td>
+        ))}
+        <td>
+          <div className="d-flex gap-1">
+            <button
+              className="btn btn-sm btn-info"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <i className="bi bi-eye"></i>
+            </button>
+            <button
+              className="btn btn-warning btn-sm"
+              onClick={() => {
+                setEditTaskId(task.id);
+                setEditTaskData({ ...task });
+              }}
+            >
+              <i className="bi bi-pencil"></i>
+            </button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => removeTask(task.id)}
+            >
+              <i className="bi bi-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+{isOpen && (
+  <tr>
+    <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
+      <div style={{
+        margin: "10px",
+        padding: "15px",
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+      }}>
+        {/* Detalles */}
+        <div style={{ marginBottom: "15px" }}>
+          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+            <i className="bi bi-card-text me-1"></i> Detalles
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
+          />
+        </div>
+
+        {/* Precondiciones */}
+        <div style={{ marginBottom: "15px" }}>
+          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+            <i className="bi bi-list-check me-1"></i> Precondiciones
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
+          />
+        </div>
+
+        {/* Comentarios */}
+        <div>
+          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+            <i className="bi bi-chat-left-text me-1"></i> Comentarios
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
+          />
+        </div>
+      </div>
+    </td>
+  </tr>
+)}
+
+    </React.Fragment>
   );
 };
 
