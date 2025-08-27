@@ -11,7 +11,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     <nav>
       <ul className="pagination justify-content-center">
         <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-          <button className="page-link" onClick={() => onPageChange(currentPage - 1)}>
+          <button
+            className="page-link"
+            onClick={() => onPageChange(currentPage - 1)}
+          >
             Anterior
           </button>
         </li>
@@ -30,7 +33,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         )}
 
         {pages.map((page) => (
-          <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
+          <li
+            key={page}
+            className={`page-item ${currentPage === page ? "active" : ""}`}
+          >
             <button className="page-link" onClick={() => onPageChange(page)}>
               {page}
             </button>
@@ -43,15 +49,25 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
               <span className="page-link">...</span>
             </li>
             <li className="page-item">
-              <button className="page-link" onClick={() => onPageChange(totalPages)}>
+              <button
+                className="page-link"
+                onClick={() => onPageChange(totalPages)}
+              >
                 {totalPages}
               </button>
             </li>
           </>
         )}
 
-        <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-          <button className="page-link" onClick={() => onPageChange(currentPage + 1)}>
+        <li
+          className={`page-item ${
+            currentPage === totalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            className="page-link"
+            onClick={() => onPageChange(currentPage + 1)}
+          >
             Siguiente
           </button>
         </li>

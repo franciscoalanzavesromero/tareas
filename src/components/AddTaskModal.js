@@ -55,29 +55,37 @@ const AddTaskModal = ({
                   {col}
                 </label>
 
-                {col === "Comentarios" ? (
-                  <WysiwygEditor
-                    value={taskData[col]}
-                    onChange={(val) => onChange(col, val)}
-                  />
-                ) : ["Detalles", "Precondiciones"].includes(col) ? (
-                  <textarea
-                    id={`add-${col}`}
-                    className="form-control"
-                    rows={3}
-                    value={taskData[col] ?? ""}
-                    onChange={(e) => onChange(col, e.target.value)}
-                  />
-                ) : (
-                  <input
-                    id={`add-${col}`}
-                    type={col === "Link" ? "url" : "text"}
-                    className="form-control"
-                    style={{ width: "100%" }}
-                    value={taskData[col] ?? ""}
-                    onChange={(e) => onChange(col, e.target.value)}
-                  />
-                )}
+                {(() => {
+                  if (col === "Comentarios") {
+                    return (
+                      <WysiwygEditor
+                        value={taskData[col]}
+                        onChange={(val) => onChange(col, val)}
+                      />
+                    );
+                  }
+                  if (["Detalles", "Precondiciones"].includes(col)) {
+                    return (
+                      <textarea
+                        id={`add-${col}`}
+                        className="form-control"
+                        rows={3}
+                        value={taskData[col] ?? ""}
+                        onChange={(e) => onChange(col, e.target.value)}
+                      />
+                    );
+                  }
+                  return (
+                    <input
+                      id={`add-${col}`}
+                      type={col === "Link" ? "url" : "text"}
+                      className="form-control"
+                      style={{ width: "100%" }}
+                      value={taskData[col] ?? ""}
+                      onChange={(e) => onChange(col, e.target.value)}
+                    />
+                  );
+                })()}
               </div>
             ))}
           </div>
