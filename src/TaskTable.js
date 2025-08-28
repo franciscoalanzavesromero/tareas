@@ -312,54 +312,49 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
           </div>
         </td>
       </tr>
-      {isOpen && (
-        <tr>
-          <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
-            <div
-              style={{
-                margin: "10px",
-                padding: "15px",
-                backgroundColor: "#fff",
-                borderRadius: "8px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              }}
-            >
-              {/* Detalles */}
-              <div style={{ marginBottom: "15px" }}>
-                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-                  <i className="bi bi-card-text me-1"></i> Detalles
-                </h6>
-                <div
-                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-                  dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
-                />
-              </div>
+{isOpen && (
+  <tr>
+    <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
+      <div className="p-3">
 
-              {/* Precondiciones */}
-              <div style={{ marginBottom: "15px" }}>
-                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-                  <i className="bi bi-list-check me-1"></i> Precondiciones
-                </h6>
-                <div
-                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-                  dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
-                />
-              </div>
+        {/* Detalles */}
+        <div className="border border-light rounded bg-white p-3 mb-2">
+          <h6 className="text-primary mb-2">
+            <i className="bi bi-card-text me-1"></i> Detalles
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
+          />
+        </div>
 
-              {/* Comentarios */}
-              <div>
-                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-                  <i className="bi bi-chat-left-text me-1"></i> Comentarios
-                </h6>
-                <div
-                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-                  dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
-                />
-              </div>
-            </div>
-          </td>
-        </tr>
-      )}
+        {/* Precondiciones */}
+        <div className="border border-light rounded bg-white p-3 mb-2">
+          <h6 className="text-primary mb-2">
+            <i className="bi bi-list-check me-1"></i> Precondiciones
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
+          />
+        </div>
+
+        {/* Comentarios */}
+        <div className="border border-light rounded bg-white p-3">
+          <h6 className="text-primary mb-2">
+            <i className="bi bi-chat-left-text me-1"></i> Comentarios
+          </h6>
+          <div
+            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+            dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
+          />
+        </div>
+
+      </div>
+    </td>
+  </tr>
+)}
+
     </React.Fragment>
   );
 };
