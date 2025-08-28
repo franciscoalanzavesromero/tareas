@@ -9,7 +9,7 @@ import Pagination from "./components/Pagination";
 import ConfirmDeleteTaskModal from "./components/ConfirmDeleteTaskModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Tooltip } from "bootstrap"; 
+import { Tooltip } from "bootstrap";
 
 const TaskTable = ({ tasks, setTasks }) => {
   const columns = [
@@ -42,7 +42,17 @@ const TaskTable = ({ tasks, setTasks }) => {
     const tooltipTriggerList = document.querySelectorAll(
       '[data-bs-toggle="tooltip"]'
     );
-    tooltipTriggerList.forEach((el) => new Tooltip(el));
+
+    tooltipTriggerList.forEach((el) => {
+      // Inicializar tooltip
+      const tooltip = new Tooltip(el, {
+        trigger: "hover focus", // hover para pasar el ratón, focus para teclado
+      });
+      // Ocultar tooltip al hacer clic
+      el.addEventListener("click", () => {
+        tooltip.hide();
+      });
+    });
   }, [tasks, currentPage]);
 
   // Añadir nueva tarea
@@ -180,11 +190,16 @@ const TaskTable = ({ tasks, setTasks }) => {
       <table className="table table-striped table-bordered table-hover">
         <thead className="table-dark">
           <tr>
-            {["DRS", "Descripcion", "Casos de prueba", "Estado", "Defecto", "Link"].map(
-              (col) => (
-                <th key={col}>{col}</th>
-              )
-            )}
+            {[
+              "DRS",
+              "Descripcion",
+              "Casos de prueba",
+              "Estado",
+              "Defecto",
+              "Link",
+            ].map((col) => (
+              <th key={col}>{col}</th>
+            ))}
             <th>Acciones</th>
           </tr>
         </thead>
@@ -217,7 +232,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         onCancel={() => setShowAddModal(false)}
         onAdd={addTask}
       />
-
+      {/* Modal editar tarea */}
       <EditTaskModal
         show={!!editTaskId}
         columns={columns}
@@ -231,7 +246,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         }}
         onSave={saveEditTask}
       />
-
+      {/* Modal eliminar todas las tareas */}
       <ConfirmDeleteAllModal
         show={showConfirmModal}
         onConfirm={clearAllTasks}
@@ -239,13 +254,11 @@ const TaskTable = ({ tasks, setTasks }) => {
       />
 
       {/* Modal eliminar tarea individual */}
-{/* Modal eliminar tarea individual */}
-<ConfirmDeleteTaskModal
-  task={taskToDelete}
-  onConfirm={confirmDeleteTask}
-  onCancel={() => setTaskToDelete(null)}
-/>
-
+      <ConfirmDeleteTaskModal
+        task={taskToDelete}
+        onConfirm={confirmDeleteTask}
+        onCancel={() => setTaskToDelete(null)}
+      />
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
@@ -270,11 +283,16 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
   return (
     <React.Fragment>
       <tr>
-        {["DRS", "Descripcion", "Casos de prueba", "Estado", "Defecto", "Link"].map(
-          (col) => (
-            <td key={col}>{renderCellContent(col)}</td>
-          )
-        )}
+        {[
+          "DRS",
+          "Descripcion",
+          "Casos de prueba",
+          "Estado",
+          "Defecto",
+          "Link",
+        ].map((col) => (
+          <td key={col}>{renderCellContent(col)}</td>
+        ))}
         <td>
           <div className="d-flex gap-1">
             {/* Ver detalles */}
@@ -312,49 +330,48 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
           </div>
         </td>
       </tr>
-{isOpen && (
-  <tr>
-    <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
-      <div className="p-3">
+      {isOpen && (
+        <tr>
+          <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
+            <div className="p-3">
+              {/* Detalles */}
+              <div className="border border-light rounded bg-white p-3 mb-2">
+                <h6 className="text-primary mb-2">
+                  <i className="bi bi-card-text me-1"></i> Detalles
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
+                />
+              </div>
 
-        {/* Detalles */}
-        <div className="border border-light rounded bg-white p-3 mb-2">
-          <h6 className="text-primary mb-2">
-            <i className="bi bi-card-text me-1"></i> Detalles
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
-          />
-        </div>
+              {/* Precondiciones */}
+              <div className="border border-light rounded bg-white p-3 mb-2">
+                <h6 className="text-primary mb-2">
+                  <i className="bi bi-list-check me-1"></i> Precondiciones
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{
+                    __html: task.Precondiciones || "",
+                  }}
+                />
+              </div>
 
-        {/* Precondiciones */}
-        <div className="border border-light rounded bg-white p-3 mb-2">
-          <h6 className="text-primary mb-2">
-            <i className="bi bi-list-check me-1"></i> Precondiciones
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
-          />
-        </div>
-
-        {/* Comentarios */}
-        <div className="border border-light rounded bg-white p-3">
-          <h6 className="text-primary mb-2">
-            <i className="bi bi-chat-left-text me-1"></i> Comentarios
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
-          />
-        </div>
-
-      </div>
-    </td>
-  </tr>
-)}
-
+              {/* Comentarios */}
+              <div className="border border-light rounded bg-white p-3">
+                <h6 className="text-primary mb-2">
+                  <i className="bi bi-chat-left-text me-1"></i> Comentarios
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
+                />
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
     </React.Fragment>
   );
 };
