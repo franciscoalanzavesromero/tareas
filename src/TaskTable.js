@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import * as XLSX from "xlsx";
 import { v4 as uuidv4 } from "uuid";
@@ -8,6 +8,7 @@ import AddTaskModal from "./components/AddTaskModal";
 import Pagination from "./components/Pagination";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Tooltip } from "bootstrap"; // Importar Bootstrap JS
 
 const TaskTable = ({ tasks, setTasks }) => {
   const columns = [
@@ -31,7 +32,17 @@ const TaskTable = ({ tasks, setTasks }) => {
   const [newTask, setNewTask] = useState(
     columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {})
   );
+  const [taskToDelete, setTaskToDelete] = useState(null); // <-- Tarea a eliminar
+
   const itemsPerPage = 10;
+
+  // Inicializar tooltips de Bootstrap
+  useEffect(() => {
+    const tooltipTriggerList = document.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
+    );
+    tooltipTriggerList.forEach((el) => new Tooltip(el));
+  }, [tasks, currentPage]);
 
   // Añadir nueva tarea
   const addTask = () => {
@@ -55,11 +66,12 @@ const TaskTable = ({ tasks, setTasks }) => {
     toast.success(`La tarea se ha modificado correctamente`);
   };
 
-  // Eliminar tarea individual
-  const removeTask = (id) => {
-    const taskToRemove = tasks.find((t) => t.id === id);
-    setTasks(tasks.filter((t) => t.id !== id));
-    if (taskToRemove) toast.warn(`Se ha eliminado la tarea`);
+  // Confirmar eliminación de tarea individual
+  const confirmDeleteTask = () => {
+    if (!taskToDelete) return;
+    setTasks(tasks.filter((t) => t.id !== taskToDelete.id));
+    toast.warn(`Se ha eliminado la tarea`);
+    setTaskToDelete(null);
   };
 
   // Exportar a Excel
@@ -163,16 +175,11 @@ const TaskTable = ({ tasks, setTasks }) => {
       <table className="table table-striped table-bordered table-hover">
         <thead className="table-dark">
           <tr>
-            {[
-              "DRS",
-              "Descripcion",
-              "Casos de prueba",
-              "Estado",
-              "Defecto",
-              "Link",
-            ].map((col) => (
-              <th key={col}>{col}</th>
-            ))}
+            {["DRS", "Descripcion", "Casos de prueba", "Estado", "Defecto", "Link"].map(
+              (col) => (
+                <th key={col}>{col}</th>
+              )
+            )}
             <th>Acciones</th>
           </tr>
         </thead>
@@ -183,7 +190,7 @@ const TaskTable = ({ tasks, setTasks }) => {
               task={task}
               setEditTaskId={setEditTaskId}
               setEditTaskData={setEditTaskData}
-              removeTask={removeTask}
+              setTaskToDelete={setTaskToDelete} // <-- Pasamos función al TaskRow
             />
           ))}
         </tbody>
@@ -226,13 +233,52 @@ const TaskTable = ({ tasks, setTasks }) => {
         onCancel={() => setShowConfirmModal(false)}
       />
 
+      {/* Modal eliminar tarea individual */}
+      {taskToDelete && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirmar eliminación</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setTaskToDelete(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  ¿Estás seguro de que deseas eliminar la tarea?                
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setTaskToDelete(null)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={confirmDeleteTask}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
 
 // Fila con acordeón
-const TaskRow = ({ task, setEditTaskId, setEditTaskData, removeTask }) => {
+const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const renderCellContent = (col) => {
@@ -249,89 +295,96 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, removeTask }) => {
   return (
     <React.Fragment>
       <tr>
-        {[
-          "DRS",
-          "Descripcion",
-          "Casos de prueba",
-          "Estado",
-          "Defecto",
-          "Link",
-        ].map((col) => (
-          <td key={col}>{renderCellContent(col)}</td>
-        ))}
+        {["DRS", "Descripcion", "Casos de prueba", "Estado", "Defecto", "Link"].map(
+          (col) => (
+            <td key={col}>{renderCellContent(col)}</td>
+          )
+        )}
         <td>
           <div className="d-flex gap-1">
+            {/* Ver detalles */}
             <button
               className="btn btn-sm btn-info"
               onClick={() => setIsOpen(!isOpen)}
+              data-bs-toggle="tooltip"
+              title="Ver detalles de la tarea"
             >
               <i className="bi bi-eye"></i>
             </button>
+
+            {/* Editar */}
             <button
               className="btn btn-warning btn-sm"
               onClick={() => {
                 setEditTaskId(task.id);
                 setEditTaskData({ ...task });
               }}
+              data-bs-toggle="tooltip"
+              title="Editar tarea"
             >
               <i className="bi bi-pencil"></i>
             </button>
+
+            {/* Eliminar */}
             <button
               className="btn btn-danger btn-sm"
-              onClick={() => removeTask(task.id)}
+              onClick={() => setTaskToDelete(task)} // <-- Mostramos modal
+              data-bs-toggle="tooltip"
+              title="Eliminar tarea"
             >
               <i className="bi bi-trash"></i>
             </button>
           </div>
         </td>
       </tr>
-{isOpen && (
-  <tr>
-    <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
-      <div style={{
-        margin: "10px",
-        padding: "15px",
-        backgroundColor: "#fff",
-        borderRadius: "8px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-      }}>
-        {/* Detalles */}
-        <div style={{ marginBottom: "15px" }}>
-          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-            <i className="bi bi-card-text me-1"></i> Detalles
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
-          />
-        </div>
+      {isOpen && (
+        <tr>
+          <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
+            <div
+              style={{
+                margin: "10px",
+                padding: "15px",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              }}
+            >
+              {/* Detalles */}
+              <div style={{ marginBottom: "15px" }}>
+                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+                  <i className="bi bi-card-text me-1"></i> Detalles
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
+                />
+              </div>
 
-        {/* Precondiciones */}
-        <div style={{ marginBottom: "15px" }}>
-          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-            <i className="bi bi-list-check me-1"></i> Precondiciones
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
-          />
-        </div>
+              {/* Precondiciones */}
+              <div style={{ marginBottom: "15px" }}>
+                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+                  <i className="bi bi-list-check me-1"></i> Precondiciones
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{ __html: task.Precondiciones || "" }}
+                />
+              </div>
 
-        {/* Comentarios */}
-        <div>
-          <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
-            <i className="bi bi-chat-left-text me-1"></i> Comentarios
-          </h6>
-          <div
-            style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-            dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
-          />
-        </div>
-      </div>
-    </td>
-  </tr>
-)}
-
+              {/* Comentarios */}
+              <div>
+                <h6 style={{ marginBottom: "5px", color: "#0d6efd" }}>
+                  <i className="bi bi-chat-left-text me-1"></i> Comentarios
+                </h6>
+                <div
+                  style={{ whiteSpace: "pre-wrap", color: "#495057" }}
+                  dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
+                />
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
     </React.Fragment>
   );
 };
@@ -358,7 +411,7 @@ TaskRow.propTypes = {
   task: PropTypes.object.isRequired,
   setEditTaskId: PropTypes.func.isRequired,
   setEditTaskData: PropTypes.func.isRequired,
-  removeTask: PropTypes.func.isRequired,
+  setTaskToDelete: PropTypes.func.isRequired,
 };
 
 export default TaskTable;
