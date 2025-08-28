@@ -354,4 +354,11 @@ TaskTable.propTypes = {
   setTasks: PropTypes.func.isRequired,
 };
 
+TaskRow.propTypes = {
+  task: PropTypes.object.isRequired,
+  setEditTaskId: PropTypes.func.isRequired,
+  setEditTaskData: PropTypes.func.isRequired,
+  removeTask: PropTypes.func.isRequired,
+};
+
 export default TaskTable;
