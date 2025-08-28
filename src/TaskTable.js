@@ -6,9 +6,10 @@ import ConfirmDeleteAllModal from "./components/ConfirmDeleteAllModal";
 import EditTaskModal from "./components/EditTaskModal";
 import AddTaskModal from "./components/AddTaskModal";
 import Pagination from "./components/Pagination";
+import ConfirmDeleteTaskModal from "./components/ConfirmDeleteTaskModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Tooltip } from "bootstrap"; // Importar Bootstrap JS
+import { Tooltip } from "bootstrap"; 
 
 const TaskTable = ({ tasks, setTasks }) => {
   const columns = [
@@ -234,43 +235,13 @@ const TaskTable = ({ tasks, setTasks }) => {
       />
 
       {/* Modal eliminar tarea individual */}
-      {taskToDelete && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirmar eliminación</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setTaskToDelete(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  ¿Estás seguro de que deseas eliminar la tarea?                
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setTaskToDelete(null)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={confirmDeleteTask}
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+{/* Modal eliminar tarea individual */}
+<ConfirmDeleteTaskModal
+  task={taskToDelete}
+  onConfirm={confirmDeleteTask}
+  onCancel={() => setTaskToDelete(null)}
+/>
+
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
