@@ -171,6 +171,10 @@ const TaskTable = ({ tasks, setTasks }) => {
           }}
         />
       </div>
+      {/* Indicador de resultados */}
+      <div className="mb-2 text-end text-muted">
+        Mostrando {paginatedTasks.length} de {filteredTasks.length} tareas
+      </div>
 
       {/* Tabla */}
       <table className="table table-striped table-bordered table-hover">
