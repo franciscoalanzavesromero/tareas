@@ -55,7 +55,7 @@ const EditTaskModal = ({
                   {col}
                 </label>
 
-                {col === "Comentarios" ? (
+                {["Comentarios", "Detalles", "Precondiciones"].includes(col) ? (
                   <WysiwygEditor
                     value={taskData[col]}
                     onChange={(val) => onChange(col, val)}

@@ -56,22 +56,11 @@ const AddTaskModal = ({
                 </label>
 
                 {(() => {
-                  if (col === "Comentarios") {
+                  if (["Comentarios", "Detalles", "Precondiciones"].includes(col)) {
                     return (
                       <WysiwygEditor
                         value={taskData[col]}
                         onChange={(val) => onChange(col, val)}
-                      />
-                    );
-                  }
-                  if (["Detalles", "Precondiciones"].includes(col)) {
-                    return (
-                      <textarea
-                        id={`add-${col}`}
-                        className="form-control"
-                        rows={3}
-                        value={taskData[col] ?? ""}
-                        onChange={(e) => onChange(col, e.target.value)}
                       />
                     );
                   }
