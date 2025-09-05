@@ -7,6 +7,7 @@ import EditTaskModal from "./components/EditTaskModal";
 import AddTaskModal from "./components/AddTaskModal";
 import Pagination from "./components/Pagination";
 import ConfirmDeleteTaskModal from "./components/ConfirmDeleteTaskModal";
+import { exportTaskToWord } from "./components/ExportWord";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Tooltip } from "bootstrap";
@@ -326,6 +327,15 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
               title="Eliminar tarea"
             >
               <i className="bi bi-trash"></i>
+            </button>
+            {/* Exportar a Word */}
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={() => exportTaskToWord(task)}
+              data-bs-toggle="tooltip"
+              title="Exportar a Word"
+            >
+              <i className="bi bi-file-earmark-word"></i>
             </button>
           </div>
         </td>

@@ -11,6 +11,8 @@
     "@tiptap/react": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
     "bootstrap": "^5.3.7",
+    "docx": "^9.5.1",
+    "file-saver": "^2.0.5",
     "gh-pages": "^6.3.0",
     "localforage": "^1.10.0",
     "prop-types": "^15.8.1",
