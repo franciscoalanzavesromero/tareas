@@ -4,17 +4,28 @@ import { saveAs } from "file-saver";
 export const exportTaskToWord = async (task) => {
   const safeTask = task || {};
 
-  // Función para convertir texto con saltos de línea en párrafos y limpiar HTML
+  // Decodificar entidades HTML (&nbsp; &ndash; etc.)
+  const decodeHtmlEntities = (str) => {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = str;
+    return txt.value;
+  };
+
+  // Convertir texto con saltos de línea en párrafos y limpiar HTML
   const textToParagraphs = (text) => {
     if (!text) return [new Paragraph("")];
-    const cleanText = text.replace(/<[^>]+>/g, "");
+
+    let cleanText = decodeHtmlEntities(text);
+    cleanText = cleanText.replace(/<(div|p|br)[^>]*>/gi, "\n");
+    cleanText = cleanText.replace(/<[^>]+>/g, "");
+
     return cleanText.split("\n").map((line) =>
       new Paragraph({
         children: [
           new TextRun({
-            text: line || " ",      // Para conservar líneas vacías
-            size: 24,
-            preserveWhitespace: true, // Conservar espacios y tabulaciones
+            text: line.trim() === "" ? " " : line,
+            size: 24, // tamaño 12pt
+            preserveWhitespace: true,
           }),
         ],
         spacing: { after: 100 },
@@ -22,7 +33,7 @@ export const exportTaskToWord = async (task) => {
     );
   };
 
-  // Función para crear título con línea separadora debajo
+  // Título de sección con línea separadora
   const sectionTitle = (text) =>
     new Paragraph({
       children: [new TextRun({ text, bold: true, size: 32, color: "2E75B6" })],
@@ -58,8 +69,8 @@ export const exportTaskToWord = async (task) => {
           ].map(([label, value], index, arr) =>
             new Paragraph({
               children: [
-                new TextRun({ text: `${label}: `, bold: true }),
-                new TextRun({ text: value }),
+                new TextRun({ text: `${label}: `, bold: true, size: 24 }),
+                new TextRun({ text: value, size: 24 }),
               ],
               spacing: { after: index === arr.length - 1 ? 300 : 100 },
             })
