@@ -8,12 +8,17 @@ export const exportTaskToWord = async (task) => {
   const textToParagraphs = (text) => {
     if (!text) return [new Paragraph("")];
     const cleanText = text.replace(/<[^>]+>/g, "");
-    return cleanText.split("\n").map(
-      (line) =>
-        new Paragraph({
-          children: [new TextRun({ text: line, size: 24 })],
-          spacing: { after: 100 },
-        })
+    return cleanText.split("\n").map((line) =>
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: line || " ",      // Para conservar líneas vacías
+            size: 24,
+            preserveWhitespace: true, // Conservar espacios y tabulaciones
+          }),
+        ],
+        spacing: { after: 100 },
+      })
     );
   };
 
@@ -50,16 +55,14 @@ export const exportTaskToWord = async (task) => {
             ["Nombre", safeTask.DRS || ""],
             ["Test", safeTask["Casos de prueba"] || ""],
             ["Fecha", new Date().toLocaleDateString()],
-          ].map(
-            ([label, value], index, arr) =>
-              new Paragraph({
-                children: [
-                  new TextRun({ text: `${label}: `, bold: true }),
-                  new TextRun({ text: value }),
-                ],
-                // Mayor espacio después de la última línea (fecha)
-                spacing: { after: index === arr.length - 1 ? 300 : 100 },
-              })
+          ].map(([label, value], index, arr) =>
+            new Paragraph({
+              children: [
+                new TextRun({ text: `${label}: `, bold: true }),
+                new TextRun({ text: value }),
+              ],
+              spacing: { after: index === arr.length - 1 ? 300 : 100 },
+            })
           ),
 
           // Espacio extra antes de Detalles
@@ -91,8 +94,7 @@ export const exportTaskToWord = async (task) => {
 
   const blob = await Packer.toBlob(doc);
 
-  const fileName =
-    (safeTask["Casos de prueba"] && safeTask["Casos de prueba"].toString().trim()) || "sin_nombre";
+  const fileName = (safeTask["Casos de prueba"] && safeTask["Casos de prueba"].toString().trim()) || "sin_nombre";
 
   saveAs(blob, `${fileName}.docx`);
 };
