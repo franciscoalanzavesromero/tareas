@@ -319,15 +319,6 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
               <i className="bi bi-pencil"></i>
             </button>
 
-            {/* Eliminar */}
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={() => setTaskToDelete(task)} // <-- Mostramos modal
-              data-bs-toggle="tooltip"
-              title="Eliminar tarea"
-            >
-              <i className="bi bi-trash"></i>
-            </button>
             {/* Exportar a Word */}
             <button
               className="btn btn-sm btn-secondary"
@@ -336,6 +327,16 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
               title="Exportar a Word"
             >
               <i className="bi bi-file-earmark-word"></i>
+            </button>
+
+            {/* Eliminar */}
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => setTaskToDelete(task)} // <-- Mostramos modal
+              data-bs-toggle="tooltip"
+              title="Eliminar tarea"
+            >
+              <i className="bi bi-trash"></i>
             </button>
           </div>
         </td>
