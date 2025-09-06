@@ -18,7 +18,9 @@ const ConfirmDeleteTaskModal = ({ task, onConfirm, onCancel }) => {
           </div>
           <div className="modal-body">
             <p>¿Estás seguro de que deseas eliminar la tarea?</p>
-            <p><strong>{task.Descripcion}</strong></p>
+            <p>
+              <strong>{task["Casos de prueba"]}</strong>
+            </p>
           </div>
           <div className="modal-footer">
             <button
