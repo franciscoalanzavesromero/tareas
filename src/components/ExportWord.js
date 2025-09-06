@@ -84,7 +84,7 @@ export const exportTaskToWord = async (task) => {
           // Información básica
           sectionTitle("Información General"),
           ...[
-            ["Nombre", safeTask.DRS || ""],
+            ["Nombre",""],
             ["Test", safeTask["Casos de prueba"] || ""],
             ["Fecha", new Date().toLocaleDateString()],
           ].map(
