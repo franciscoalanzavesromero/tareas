@@ -136,8 +136,7 @@ export const exportTaskToWord = async (task) => {
 
   const blob = await Packer.toBlob(doc);
   const fileName =
-    (safeTask["Casos de prueba"] &&
-      safeTask["Casos de prueba"].toString().trim()) ||
+    safeTask["Casos de prueba"]?.toString().trim() ||
     "sin_nombre";
   saveAs(blob, `${fileName}.docx`);
 };
