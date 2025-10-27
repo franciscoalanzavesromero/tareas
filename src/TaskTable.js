@@ -13,17 +13,22 @@ import "react-toastify/dist/ReactToastify.css";
 import { Tooltip } from "bootstrap";
 
 const TaskTable = ({ tasks, setTasks }) => {
+  // Nuevas columnas para gestión de proyectos
   const columns = [
-    "DRS",
-    "Descripcion",
-    "Casos de prueba",
-    "Link",
-    "Detalles",
-    "Precondiciones",
+    "ID Proyecto",
+    "Nombre Tarea",
+    "Subtareas",
+    "Enlace",
+    "Descripción Detallada",
+    "Requisitos",
     "Estado",
-    "Defecto",
-    "Comentarios",
+    "Prioridad",
+    "Notas",
   ];
+
+  // Opciones predefinidas para estados y prioridades
+  const statusOptions = ["✅ Pendiente", "🚧 En Progreso", "⏳ En Revisión", "✅ Completado", "❌ Bloqueado"];
+  const priorityOptions = ["🔥 Alta", "⚠️ Media", "💡 Baja", "📅 Programada"];
 
   const [filterText, setFilterText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,7 +39,7 @@ const TaskTable = ({ tasks, setTasks }) => {
   const [newTask, setNewTask] = useState(
     columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {})
   );
-  const [taskToDelete, setTaskToDelete] = useState(null); // <-- Tarea a eliminar
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const itemsPerPage = 10;
 
@@ -45,11 +50,9 @@ const TaskTable = ({ tasks, setTasks }) => {
     );
 
     tooltipTriggerList.forEach((el) => {
-      // Inicializar tooltip
       const tooltip = new Tooltip(el, {
-        trigger: "hover focus", // hover para pasar el ratón, focus para teclado
+        trigger: "hover focus",
       });
-      // Ocultar tooltip al hacer clic
       el.addEventListener("click", () => {
         tooltip.hide();
       });
@@ -58,12 +61,12 @@ const TaskTable = ({ tasks, setTasks }) => {
 
   // Añadir nueva tarea
   const addTask = () => {
-    if (!newTask.DRS || !newTask.Descripcion) return;
+    if (!newTask["ID Proyecto"] || !newTask["Nombre Tarea"]) return;
     const taskToAdd = { ...newTask, id: uuidv4() };
     setTasks([...tasks, taskToAdd]);
     setNewTask(columns.reduce((acc, col) => ({ ...acc, [col]: "" }), {}));
     setShowAddModal(false);
-    toast.success(`La tarea se ha guardado correctamente`);
+    toast.success(`La tarea se ha creado correctamente`);
   };
 
   // Guardar edición
@@ -75,14 +78,14 @@ const TaskTable = ({ tasks, setTasks }) => {
     );
     setEditTaskId(null);
     setEditTaskData({});
-    toast.success(`La tarea se ha modificado correctamente`);
+    toast.success(`La tarea se ha actualizado correctamente`);
   };
 
   // Confirmar eliminación de tarea individual
   const confirmDeleteTask = () => {
     if (!taskToDelete) return;
     setTasks(tasks.filter((t) => t.id !== taskToDelete.id));
-    toast.warn(`Se ha eliminado la tarea`);
+    toast.warn(`Tarea eliminada correctamente`);
     setTaskToDelete(null);
   };
 
@@ -93,14 +96,15 @@ const TaskTable = ({ tasks, setTasks }) => {
       tasks.map(({ id, ...rest }) => rest)
     );
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Tareas");
-    XLSX.writeFile(workbook, "Tareas.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tareas Proyectos");
+    XLSX.writeFile(workbook, "Tareas_Proyectos.xlsx");
   };
 
   // Borrar todas las tareas
   const clearAllTasks = () => {
     setTasks([]);
     setShowConfirmModal(false);
+    toast.info("Todas las tareas han sido eliminadas");
   };
 
   // Filtrado
@@ -135,6 +139,7 @@ const TaskTable = ({ tasks, setTasks }) => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       const tasksWithId = jsonData.map((t) => ({ ...t, id: uuidv4() }));
       setTasks((prev) => [...prev, ...tasksWithId]);
+      toast.success(`${jsonData.length} tareas importadas correctamente`);
     };
     reader.readAsArrayBuffer(file);
   };
@@ -147,13 +152,16 @@ const TaskTable = ({ tasks, setTasks }) => {
           className="btn btn-primary"
           onClick={() => setShowAddModal(true)}
         >
-          Añadir nueva tarea
+          <i className="bi bi-plus-circle me-1"></i>
+          Nueva Tarea
         </button>
         <button className="btn btn-success" onClick={exportToExcel}>
-          Exportar a Excel
+          <i className="bi bi-file-earmark-excel me-1"></i>
+          Exportar Excel
         </button>
         <label className="btn btn-info mb-0">
-          Importar Excel{" "}
+          <i className="bi bi-upload me-1"></i>
+          Importar Excel
           <input
             type="file"
             accept=".xlsx, .xls"
@@ -165,7 +173,8 @@ const TaskTable = ({ tasks, setTasks }) => {
           className="btn btn-warning"
           onClick={() => setShowConfirmModal(true)}
         >
-          Borrar todas las tareas
+          <i className="bi bi-trash me-1"></i>
+          Limpiar Todo
         </button>
       </div>
 
@@ -174,7 +183,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         <input
           type="text"
           className="form-control"
-          placeholder="Buscar tareas..."
+          placeholder="Buscar en tareas y proyectos..."
           value={filterText}
           onChange={(e) => {
             setFilterText(e.target.value);
@@ -182,6 +191,7 @@ const TaskTable = ({ tasks, setTasks }) => {
           }}
         />
       </div>
+
       {/* Indicador de resultados */}
       <div className="mb-2 text-end text-muted">
         Mostrando {paginatedTasks.length} de {filteredTasks.length} tareas
@@ -192,12 +202,12 @@ const TaskTable = ({ tasks, setTasks }) => {
         <thead className="table-dark">
           <tr>
             {[
-              "DRS",
-              "Descripcion",
-              "Casos de prueba",
+              "ID Proyecto",
+              "Nombre Tarea",
+              "Subtareas",
               "Estado",
-              "Defecto",
-              "Link",
+              "Prioridad",
+              "Enlace",
             ].map((col) => (
               <th key={col}>{col}</th>
             ))}
@@ -211,7 +221,9 @@ const TaskTable = ({ tasks, setTasks }) => {
               task={task}
               setEditTaskId={setEditTaskId}
               setEditTaskData={setEditTaskData}
-              setTaskToDelete={setTaskToDelete} // <-- Pasamos función al TaskRow
+              setTaskToDelete={setTaskToDelete}
+              statusOptions={statusOptions}
+              priorityOptions={priorityOptions}
             />
           ))}
         </tbody>
@@ -229,15 +241,20 @@ const TaskTable = ({ tasks, setTasks }) => {
         show={showAddModal}
         columns={columns}
         taskData={newTask}
+        statusOptions={statusOptions}
+        priorityOptions={priorityOptions}
         onChange={(col, value) => setNewTask({ ...newTask, [col]: value })}
         onCancel={() => setShowAddModal(false)}
         onAdd={addTask}
       />
+
       {/* Modal editar tarea */}
       <EditTaskModal
         show={!!editTaskId}
         columns={columns}
         taskData={editTaskData}
+        statusOptions={statusOptions}
+        priorityOptions={priorityOptions}
         onChange={(col, value) =>
           setEditTaskData({ ...editTaskData, [col]: value })
         }
@@ -247,6 +264,7 @@ const TaskTable = ({ tasks, setTasks }) => {
         }}
         onSave={saveEditTask}
       />
+
       {/* Modal eliminar todas las tareas */}
       <ConfirmDeleteAllModal
         show={showConfirmModal}
@@ -267,16 +285,47 @@ const TaskTable = ({ tasks, setTasks }) => {
 };
 
 // Fila con acordeón
-const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
+const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete, statusOptions, priorityOptions }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Función para aplicar estilos según el estado
+  const getStatusBadge = (status) => {
+    const baseClass = "badge";
+    switch (status) {
+      case "✅ Pendiente": return `${baseClass} bg-secondary`;
+      case "🚧 En Progreso": return `${baseClass} bg-primary`;
+      case "⏳ En Revisión": return `${baseClass} bg-warning`;
+      case "✅ Completado": return `${baseClass} bg-success`;
+      case "❌ Bloqueado": return `${baseClass} bg-danger`;
+      default: return `${baseClass} bg-light text-dark`;
+    }
+  };
+
+  // Función para aplicar estilos según la prioridad
+  const getPriorityBadge = (priority) => {
+    const baseClass = "badge";
+    switch (priority) {
+      case "🔥 Alta": return `${baseClass} bg-danger`;
+      case "⚠️ Media": return `${baseClass} bg-warning`;
+      case "💡 Baja": return `${baseClass} bg-info`;
+      case "📅 Programada": return `${baseClass} bg-secondary`;
+      default: return `${baseClass} bg-light text-dark`;
+    }
+  };
+
   const renderCellContent = (col) => {
-    if (col === "Link" && task[col]) {
+    if (col === "Enlace" && task[col]) {
       return (
-        <a href={task[col]} target="_blank" rel="noreferrer">
-          Ver
+        <a href={task[col]} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary">
+          <i className="bi bi-link-45deg"></i> Abrir
         </a>
       );
+    }
+    if (col === "Estado") {
+      return <span className={getStatusBadge(task[col])}>{task[col]}</span>;
+    }
+    if (col === "Prioridad") {
+      return <span className={getPriorityBadge(task[col])}>{task[col]}</span>;
     }
     return task[col];
   };
@@ -285,12 +334,12 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
     <React.Fragment>
       <tr>
         {[
-          "DRS",
-          "Descripcion",
-          "Casos de prueba",
+          "ID Proyecto",
+          "Nombre Tarea",
+          "Subtareas",
           "Estado",
-          "Defecto",
-          "Link",
+          "Prioridad",
+          "Enlace",
         ].map((col) => (
           <td key={col}>{renderCellContent(col)}</td>
         ))}
@@ -332,7 +381,7 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
             {/* Eliminar */}
             <button
               className="btn btn-danger btn-sm"
-              onClick={() => setTaskToDelete(task)} // <-- Mostramos modal
+              onClick={() => setTaskToDelete(task)}
               data-bs-toggle="tooltip"
               title="Eliminar tarea"
             >
@@ -345,38 +394,38 @@ const TaskRow = ({ task, setEditTaskId, setEditTaskData, setTaskToDelete }) => {
         <tr>
           <td colSpan={7} style={{ padding: 0, backgroundColor: "#f8f9fa" }}>
             <div className="p-3">
-              {/* Detalles */}
+              {/* Descripción Detallada */}
               <div className="border border-light rounded bg-white p-3 mb-2">
                 <h6 className="text-primary mb-2">
-                  <i className="bi bi-card-text me-1"></i> Detalles
+                  <i className="bi bi-card-text me-1"></i> Descripción Detallada
                 </h6>
                 <div
                   style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-                  dangerouslySetInnerHTML={{ __html: task.Detalles || "" }}
+                  dangerouslySetInnerHTML={{ __html: task["Descripción Detallada"] || "" }}
                 />
               </div>
 
-              {/* Precondiciones */}
+              {/* Requisitos */}
               <div className="border border-light rounded bg-white p-3 mb-2">
                 <h6 className="text-primary mb-2">
-                  <i className="bi bi-list-check me-1"></i> Precondiciones
+                  <i className="bi bi-list-check me-1"></i> Requisitos
                 </h6>
                 <div
                   style={{ whiteSpace: "pre-wrap", color: "#495057" }}
                   dangerouslySetInnerHTML={{
-                    __html: task.Precondiciones || "",
+                    __html: task.Requisitos || "",
                   }}
                 />
               </div>
 
-              {/* Comentarios */}
+              {/* Notas */}
               <div className="border border-light rounded bg-white p-3">
                 <h6 className="text-primary mb-2">
-                  <i className="bi bi-chat-left-text me-1"></i> Comentarios
+                  <i className="bi bi-chat-left-text me-1"></i> Notas
                 </h6>
                 <div
                   style={{ whiteSpace: "pre-wrap", color: "#495057" }}
-                  dangerouslySetInnerHTML={{ __html: task.Comentarios || "" }}
+                  dangerouslySetInnerHTML={{ __html: task.Notas || "" }}
                 />
               </div>
             </div>
@@ -391,15 +440,15 @@ TaskTable.propTypes = {
   tasks: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
-      DRS: PropTypes.string,
-      Descripcion: PropTypes.string,
-      "Casos de prueba": PropTypes.string,
-      Link: PropTypes.string,
-      Detalles: PropTypes.string,
-      Precondiciones: PropTypes.string,
-      Estado: PropTypes.string,
-      Defecto: PropTypes.string,
-      Comentarios: PropTypes.string,
+      "ID Proyecto": PropTypes.string,
+      "Nombre Tarea": PropTypes.string,
+      "Subtareas": PropTypes.string,
+      "Enlace": PropTypes.string,
+      "Descripción Detallada": PropTypes.string,
+      "Requisitos": PropTypes.string,
+      "Estado": PropTypes.string,
+      "Prioridad": PropTypes.string,
+      "Notas": PropTypes.string,
     })
   ).isRequired,
   setTasks: PropTypes.func.isRequired,
@@ -410,6 +459,8 @@ TaskRow.propTypes = {
   setEditTaskId: PropTypes.func.isRequired,
   setEditTaskData: PropTypes.func.isRequired,
   setTaskToDelete: PropTypes.func.isRequired,
+  statusOptions: PropTypes.array.isRequired,
+  priorityOptions: PropTypes.array.isRequired,
 };
 
 export default TaskTable;
